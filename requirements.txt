@@ -1,5 +1,5 @@
-sklearn
-numpy
-pandas
-matplotlib
-skimage
+sklearn==0.0.post1
+numpy==1.24.1
+pandas==2.2.2
+matplotlib==3.6.3
+scikit-image==0.22.0
