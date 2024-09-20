@@ -11,6 +11,22 @@ from utility import gridy
 from utility import define_wall_df
 from utility import draw_value, draw_value_hit
 
+'''usage direction
+astar function and markov function can be called separately
+for generate synthetic trajectories
+
+other functions are helping function for astar
+
+heur is a customizable function used in astar algorithm 
+to find shortest path
+
+map_heur is a customizable function to calculate addtional
+graph score in map
+
+Fitem is a comparable element for priority queue
+can customize cmp function, score, or other utility function  
+'''
+
 def heur(xs,ys,xe,ye):
     '''simplel heuristic function towards endpoint
     
@@ -23,7 +39,7 @@ def heur(xs,ys,xe,ye):
 def map_heur(map_df,wall_th=20000,void_th=50000): 
     '''compute a heuristical map for encouraging central path
     more far away from wall, lower the value
-    close to way higher the value
+    close to the wall higher the value
     
     wall_th: penalty value of wall in map
     void_th: penalty value of void space in map

@@ -15,8 +15,27 @@ from utility import gridy
 from utility import define_wall_df
 from utility import draw_value, draw_value_hit
 
+'''usage direction
+diffuse function and Mapper.pred function can be called separately
+for mapping synthetic trajectories to signal values
+
+other functions are helping function for diffuse function
+
+trustful is a customizable function returns a list of coordinates 
+which are ground truth 
+
+checkBound,arrBound are functions check if an index out of range 
+of the map
+
+getNeighbor,arrNeighbor are functions returns neighbor within a 
+distance to given coordinates
+
+align_wall is a function to resize the map(and wall) 
+into any given shape
+'''
+
+# loading map data
 data_path = Path.cwd()/'data'
-# iv2i
 map_path = data_path/'static_map.parquet'
 iv2ip_df = pd.read_parquet(data_path/'iV2Ip.parquet')
 map_df = pd.read_parquet(map_path)
@@ -24,7 +43,7 @@ map_df = pd.read_parquet(map_path)
 ## diffuse
 
 def align_wall(wall_df,new_shape,true_coord_bound):
-    ''' align wall with grid shape
+    ''' align wall with grid shape, with possible crop or resize
     
         wall_df: origin value of points in map shape
         new_shape: reshape to this resolution
@@ -56,7 +75,7 @@ def align_wall(wall_df,new_shape,true_coord_bound):
 
 def trustful(pos_data,grid_shape,crop_bound):
     '''
-    trustful support data point
+    return trustful coordinate provided by dataset
     output->ij order
     '''
     xx = pos_data[:,0]
@@ -73,9 +92,9 @@ def trustful(pos_data,grid_shape,crop_bound):
     trust=list(map(tuple,trust))
     return trust
 
-# array version 
 def checkBound(xylist,idx_bound):
-    '''
+    '''check if point out of range of idx_bound
+    
     idx_bound =[left bottom, right top]
     '''
     xmin,ymin,xmax,ymax=idx_bound
@@ -92,7 +111,9 @@ def checkBound(xylist,idx_bound):
     return True
 
 def arrBound(xy_arr,idx_bound):
-    '''
+    '''check if point out of range of idx_bound
+    return numpy bool array
+    
     xy_arr [[x1,y1],[x2,y2]] xy order
     idx_bound =[left bottom, right top] exclude
     '''
@@ -106,8 +127,10 @@ def arrBound(xy_arr,idx_bound):
     return x_under & x_up & y_under & y_up
 
 def getNeighbor(x,y,idx_bound,myself=False):
-    '''
-        bound(left-bottom to right-top(exclude))
+    '''return list of all neighbors of coords given in x,y
+    
+        x,y: coord of quering point
+        idx_bound(left-bottom to right-top(exclude))
         output -> y,x order
     ''' 
     if idx_bound is None:
@@ -134,7 +157,10 @@ def getNeighbor(x,y,idx_bound,myself=False):
     return nn
 
 def arrNeighbor(x_arr,y_arr,idx_bound):
-    '''bound(left-bottom to right-top(exclude))
+    '''return list of all neighbors of coords given in x_arr,y_arr
+    
+        x_arr,y_arr: coords of quering point
+        idx_bound: (left-bottom to right-top(exclude))
         output-> yx order
     '''
     if idx_bound is None:
@@ -170,6 +196,8 @@ def arrNeighbor(x_arr,y_arr,idx_bound):
 
 def diffuse(pos_data,snr_grid,map_shape,grid_shape,crop_bound,wall_df):
     '''Diffuse value to unsupported location
+    Given a initial trustful coords, for each iteration, 
+    diffuse one step further to neighbor of current trustful coords
     
     pos_data: position data samples in trainset
     snr_grid: all snr data
