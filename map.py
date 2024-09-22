@@ -199,12 +199,17 @@ def diffuse(pos_data,snr_grid,map_shape,grid_shape,crop_bound,wall_df):
     Given a initial trustful coords, for each iteration, 
     diffuse one step further to neighbor of current trustful coords
     
-    pos_data: position data samples in trainset
-    snr_grid: all snr data
+    pos_data: position data samples in trainset in [x,y] order
+    snr_grid: snr data in arbitary shape, use utility.gridy to resize snr to any shape
     map_shape: same as snr_grid in (rows X cols)
     grid_shape: new shape of output
     crop_bound: avaliable bound base on map coord
     wall_df: find wall pos
+    return 
+    snr_new: snr_data in as map_shape
+    wall_new_df: new value for walls & void in map, used for debugging
+    cands: diffuse candidants in each iteration, used for debugging
+    cands_v: diffuse candidants value in ecah iteration, used for debugging
     '''
     
     map_bs_x=9

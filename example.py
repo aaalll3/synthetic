@@ -92,12 +92,6 @@ pos_data = pos_snr_data[:,1:]
 snr_data = pos_snr_data[:,0]
 print(pos_data.shape)
 
-## form a grid map
-step = 0.5
-stepx = step
-stepy = step
-pos_grid,rows_grid,cols_grid = gridy(xmin,xmax,ymin,ymax,stepx,stepy)
-grid_shape = [rows_grid,cols_grid ]
 
 ## select train data
 train_start = 0
@@ -132,15 +126,25 @@ model = Mapper()
 model.fit(pos_xyz_train,snr_train)
 model.pred(pos_xyz_test)
 
-snr_grid = model.pred(pos_grid)
 ## reconstruct
 snr_recon = model.pred(pos_xyz_train)
 # compare error to ground truth
 print(f'@train interval {train_start}-{train_end} MSE:{mse(snr_recon,snr_train)}')
 
-## train diffuse map
 
+## prepare diffuse method
+
+## form a grid map
 wall_df = define_wall_df(map_df)
+
+step = 0.5 # parameter for grid granularity
+stepx = step
+stepy = step
+pos_grid,rows_grid,cols_grid = gridy(xmin,xmax,ymin,ymax,stepx,stepy)
+grid_shape = [rows_grid,cols_grid ]
+snr_grid = model.pred(pos_grid)
+
+## train diffuse map
 snr_new,wall_new_df,cands,cands_v = diffuse(pos_data=pos_data,snr_grid=snr_grid,map_shape=map_shape,grid_shape=grid_shape,crop_bound=map_crop_bound,wall_df=wall_df)
 snr_new=snr_new.flatten()
 
